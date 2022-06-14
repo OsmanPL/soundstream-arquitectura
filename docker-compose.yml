@@ -1,0 +1,200 @@
+version: '3.1'
+services:
+
+#Contenedor para Redis
+  db-redis:
+    container_name: redis-stack-server
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.30
+    hostname: cache_redis
+
+#Contenedor MySQL
+  db-mysql:
+    container_name: mysql-dev
+    image: mysql
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root_pass"
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: "admin_pass"
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.130
+    hostname: db_dev_mysql
+
+#Servicio Streamming
+#Contenedor del microservicio de Albumes
+  app-albumes:
+    container_name: microservicio_albumes
+    image: osmanpl9610/microservicio_albumes
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.10
+    hostname: servicio_album
+
+#Contenedor del microservicio de Canciones
+  app-canciones:
+    container_name: microservicio_canciones
+    image: osmanpl9610/microservicio_canciones
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.20
+    hostname: servicio_canciones
+
+#Contenedor del express gateway para Streamming
+  express-gateway-streamming:
+    container_name: eg_streamming
+    image: express-gateway
+    environment:
+      - LOG_LEVEL=debug
+    volumes:
+      - ./config-express-gateway/Streamming:/var/lib/eg
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.40
+    hostname: express_streamming
+
+#Servicio de Auth
+#Contenedor del microservicio de Registro
+  app-registro:
+    container_name: microservicio_registro
+    image: osmanpl9610/microservicio_registro
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.50
+    hostname: servicio_registro
+
+#Contenedor del microservicio de Autenticacion
+  app-autenticacion:
+    container_name: microservicio_autenticacion
+    image: osmanpl9610/microservicio_autenticacion
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.60
+    hostname: servicio_autenticacion
+
+#Contenedor del express gateway para Auth
+  express-gateway-auth:
+    container_name: eg_auth
+    image: express-gateway
+    environment:
+      - LOG_LEVEL=debug
+    volumes:
+      - ./config-express-gateway/Auth:/var/lib/eg
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.70
+    hostname: express_auth
+
+#Servicio de Account
+#Contenedor del microservicio de Tarjeta
+  app-tarjeta:
+    container_name: microservicio_tarjeta
+    image: osmanpl9610/microservicio_tarjeta
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.80
+    hostname: servicio_tarjeta
+
+#Contenedor del microservicio de Suscripcion 
+  app-suscripcion:
+    container_name: microservicio_suscripcion
+    image: osmanpl9610/microservicio_suscripcion
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.90
+    hostname: servicio_suscripcion
+
+#Contenedor del microservicio de RUD usuario
+  app-rud-usuario:
+    container_name: microservicio_rud_usuario
+    image: osmanpl9610/microservicio_rud_usuario
+    restart: always
+    env_file:
+      - DEV.env
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.100
+    hostname: servicio_rud_usuario
+
+#Contenedor del express gateway para Account
+  express-gateway-acount:
+    container_name: eg_account
+    image: express-gateway
+    environment:
+      - LOG_LEVEL=debug
+    volumes:
+      - ./config-express-gateway/Account:/var/lib/eg
+    networks:
+      red_interna:
+        ipv4_address: 192.168.20.110
+    hostname: express_account
+
+#Contenedor Nginx
+  reverse-proxy:
+    image: nginx:1.17.10
+    container_name: reverse_proxy
+    restart: always
+    environment:
+      - LOG_LEVEL=debug
+    volumes:
+      - ./config-nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      red_web:
+        ipv4_address: 192.168.10.10
+      red_interna:
+        ipv4_address: 192.168.20.120
+    hostname: nginx-proxy
+
+#Contenedor de UI Soundstream
+  ui-soundstream:
+    image: aexrose/soudstream_app
+    container_name: frontend-soundstream
+    restart: always
+    env_file:
+      - Front.env
+    ports:
+      - 3000:80
+    networks:
+      red_web:
+        ipv4_address: 192.168.10.30
+    hostname: nginx-proxy
+
+networks:
+    red_web:
+        ipam:
+            config:
+              - subnet: 192.168.10.0/24
+    red_interna:
+        ipam:
+            config:
+              - subnet: 192.168.20.0/24
+              

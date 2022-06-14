@@ -1,0 +1,128 @@
+http:
+  port: 8080
+  host: 0.0.0.0
+admin:
+  port: 9876
+  host: 0.0.0.0
+apiEndpoints:
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/apiEndpoints
+  api-canciones:
+    host: '*'
+    paths: ['/song','/song/*']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+  api-albumes:
+    host: '*'
+    paths: ['/album','/album/*']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+  api-cancionesBySearch:
+    host: '*'
+    paths: ['/songBySearch']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+  api-albumesBySearch:
+    host: '*'
+    paths: ['/albumBySearch']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+serviceEndpoints:
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/serviceEndpoints
+  service-canciones:
+    url: 'http://app-canciones:3000/song'
+  service-albumes:
+    url: 'http://app-albumes:3000/album'
+  service-cancionesBySearch:
+    url: 'http://app-canciones:3000/songBySearch'
+  service-albumesBySearch:
+    url: 'http://app-albumes:3000/albumBySearch'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  # see: https://www.express-gateway.io/docs/configuration/gateway.config.yml/pipelines
+  pipeline-canciones:
+    apiEndpoints:
+      - api-canciones
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-canciones
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
+
+  pipeline-albumes:
+    apiEndpoints:
+      - api-albumes
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-albumes
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
+
+  pipeline-cancionesBySearch:
+    apiEndpoints:
+      - api-cancionesBySearch
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-cancionesBySearch
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
+
+  pipeline-albumesBySearch:
+    apiEndpoints:
+      - api-albumesBySearch
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-albumesBySearch
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]

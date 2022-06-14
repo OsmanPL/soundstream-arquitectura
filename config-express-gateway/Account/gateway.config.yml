@@ -1,0 +1,127 @@
+http:
+  port: 8080
+admin:
+  port: 9876
+  host: localhost
+apiEndpoints:
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/apiEndpoints
+  api-tarjeta:
+    host: '*'
+    paths: ['/card','/card/*']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+  api-suscripcion:
+    host: '*'
+    paths: ['/subs','/subs/*']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+  api-suscripcion-tarjeta:
+    host: '*'
+    paths: ['/getCard','/getCard/*']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+  api-rud-usuario:
+    host: '*'
+    paths: ['/user','/user/*']
+    methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+serviceEndpoints:
+  # see: http://www.express-gateway.io/docs/configuration/gateway.config.yml/serviceEndpoints
+  service-tarjeta:
+    url: 'http://app-tarjeta:3000/card'
+  service-suscripcion:
+    url: 'http://app-suscripcion:3000/subs'
+  service-suscripcion-tarjeta:
+    url: 'http://app-suscripcion:3000/getCard'
+  service-rud-usuario:
+    url: 'http://app-rud-usuario:3000/user'
+policies:
+  - basic-auth
+  - cors
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+pipelines:
+  # see: https://www.express-gateway.io/docs/configuration/gateway.config.yml/pipelines
+  pipeline-tarjeta:
+    apiEndpoints:
+      - api-tarjeta
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-tarjeta
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
+
+  pipeline-suscripcion:
+    apiEndpoints:
+      - api-suscripcion
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-suscripcion
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
+  
+  pipeline-suscripcion-tarjeta:
+    apiEndpoints:
+      - api-suscripcion-tarjeta
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-suscripcion-tarjeta
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
+
+  pipeline-rud-usuario:
+    apiEndpoints:
+      - api-rud-usuario
+    policies:
+      - proxy:
+        - action: 
+            serviceEndpoint: service-rud-usuario
+            changeOrigin: true
+            stripPath: true
+      - cors:
+          - action:
+              origin: ["*"]
+              methods: ["HEAD","GET","PUT","PATCH","POST","DELETE","OPTIONS"]
+              preflightContinue: true
+              optionsSuccessStatus: 204
+              maxAge: 600
+              allowedHeaders:
+                [
+                  "Origin, X-Requested-With, Content-Type, Accept, Authorization","options"
+                ]
